@@ -1,30 +1,26 @@
 # Project: NESASM3
 # Makefile created by Dev-C++ 4.9.9.2
 
-CPP  = g++.exe
-CC   = gcc.exe
-WINDRES = windres.exe
+CPP  = g++
+CC   = gcc
 RES  = 
 OBJ  = assemble.o code.o command.o crc.o expr.o func.o input.o macro.o main.o mml.o nes.o output.o proc.o symbol.o pcx.o pce.o map.o $(RES)
 LINKOBJ  = assemble.o code.o command.o crc.o expr.o func.o input.o macro.o main.o mml.o nes.o output.o proc.o symbol.o pcx.o pce.o map.o $(RES)
-LIBS =  -L"C:/Dev-Cpp/lib"  
-INCS =  -I"C:/Dev-Cpp/include" 
-CXXINCS =  -I"C:/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/Dev-Cpp/include/c++/3.4.2"  -I"C:/Dev-Cpp/include" 
-BIN  = NESASM3.exe
+BIN  = nesasm
 CXXFLAGS = $(CXXINCS)  
 CFLAGS = $(INCS)  
 RM = rm -f
 
 .PHONY: all all-before all-after clean clean-custom
 
-all: all-before NESASM3.exe all-after
 
+all: all-before nesasm all-after
 
 clean: clean-custom
 	${RM} $(OBJ) $(BIN)
 
 $(BIN): $(OBJ)
-	$(CC) $(LINKOBJ) -o "NESASM3.exe" $(LIBS)
+	$(CC) $(LINKOBJ) -o "nesasm" $(LIBS)
 
 assemble.o: assemble.c
 	$(CC) -c assemble.c -o assemble.o $(CFLAGS)
@@ -76,3 +72,7 @@ pce.o: pce.c
 
 map.o: map.c
 	$(CC) -c map.c -o map.o $(CFLAGS)
+
+install: all
+	cp -f nesasm /usr/local/bin
+
