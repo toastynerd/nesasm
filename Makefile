@@ -4,6 +4,7 @@ SRC_DIR = src
 
 nesasm:
 	$(MAKE) -C $(SRC_DIR)
+	mkdir -p bin
 	mv $(SRC_DIR)/nesasm bin/nesasm
 
 clean:
