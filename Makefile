@@ -1,8 +1,8 @@
 SRC_DIR = src
 
-.PHONY: nesasm clean install
+.PHONY: clean install
 
-nesasm:
+install:
 	$(MAKE) -C $(SRC_DIR)
 	mkdir -p bin
 	mv $(SRC_DIR)/nesasm bin/nesasm
