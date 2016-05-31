@@ -8,7 +8,7 @@
   * inst.h
 
 ## defines:
-  * STADARD_CD
+  * STANDARD_CD
   * SUPER_CD
 
 ## globals:
