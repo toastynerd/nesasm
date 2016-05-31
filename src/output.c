@@ -262,7 +262,7 @@ void
 write_srec(char *file, char *ext, int base)
 {
 	unsigned char data, chksum;
-	char  fname[128];
+	char  fname[FNAME_SIZE];
 	int   addr, dump, cnt, pos, i, j;
 	FILE *fp;
 

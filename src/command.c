@@ -559,11 +559,11 @@ do_incbin(int *ip)
 {
 	FILE *fp;
 	char *p;
-	char fname[128];
+	char fname[FNAME_SIZE];
 	int  size;
 
 	/* get file name */
-	if (!getstring(ip, fname, 127))
+	if (!getstring(ip, fname, (FNAME_SIZE - 1)))
 		return;
 
 	/* get file extension */
@@ -798,13 +798,13 @@ do_mx(char *fname)
 void
 do_include(int *ip)
 {
-	char fname[128];
+	char fname[FNAME_SIZE];
 
 	/* define label */
 	labldef(loccnt, 1);
 
 	/* get file name */
-	if (!getstring(ip, fname, 127))
+	if (!getstring(ip, fname, (FNAME_SIZE - 1)))
 		return;
 
 	/* open file */

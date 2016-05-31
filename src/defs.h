@@ -230,3 +230,11 @@ typedef struct t_machine {
     void (*write_header)(FILE *, int);
 } MACHINE;
 
+/* data structure sizes */
+#ifndef BUF_SIZE
+#define BUF_SIZE 4096
+#endif
+
+#ifndef FNAME_SIZE
+#define FNAME_SIZE 128
+#endif

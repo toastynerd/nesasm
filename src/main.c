@@ -36,15 +36,15 @@
 #define SUPER_CD	2
 
 /* variables */
-unsigned char ipl_buffer[4096];
-char   in_fname[128];	/* file names, input */
-char  out_fname[128];	/* output */
-char  bin_fname[128];	/* binary */
-char  lst_fname[128];	/* listing */
-char  fns_fname[128];	/* functions */
-char *prg_name;	/* program name */
-FILE *in_fp;	/* file pointers, input */
-FILE *lst_fp;	/* listing */
+unsigned char ipl_buffer[BUF_SIZE];
+char  in_fname[FNAME_SIZE];	/* file names, input */
+char  out_fname[FNAME_SIZE];	/* output */
+char  bin_fname[FNAME_SIZE];	/* binary */
+char  lst_fname[FNAME_SIZE];	/* listing */
+char  fns_fname[FNAME_SIZE];	/* functions */
+char  *prg_name;	/* program name */
+FILE  *in_fp;	/* file pointers, input */
+FILE  *lst_fp;	/* listing */
 char  section_name[4][8] = { "  ZP", " BSS", "CODE", "DATA" };
 int   dump_seg;
 int   develo_opt;
