@@ -23,7 +23,7 @@ char pseudo_flag[] = {
  */
 
 void
-do_pseudo(int *ip)
+do_pseudo(int *ip, struct opts *op)
 {
 	char str[80];
 	int old_bank;
@@ -63,7 +63,7 @@ do_pseudo(int *ip)
 
 	/* bank overflow warning */
 	if (pass == LAST_PASS) {
-		if (asm_opt[OPT_WARNING]) {
+		if (op->asm_opt[OPT_WARNING]) {
 			switch (opval) {
 			case P_INCBIN:
 			case P_INCCHR:
@@ -93,13 +93,13 @@ do_pseudo(int *ip)
  */
 
 void
-do_list(int *ip)
+do_list(int *ip, struct opts *op)
 {
 	/* check end of line */
 	if (!check_eol(ip))
 		return;
 
-	asm_opt[OPT_LIST] = 1;
+	op->asm_opt[OPT_LIST] = 1;
 	xlist = 1;
 }
 
@@ -111,13 +111,13 @@ do_list(int *ip)
  */
 
 void
-do_mlist(int *ip)
+do_mlist(int *ip, struct opts *op)
 {
 	/* check end of line */
 	if (!check_eol(ip))
 		return;
 
-	asm_opt[OPT_MACRO] = 1;
+	op->asm_opt[OPT_MACRO] = 1;
 }
 
 
@@ -128,13 +128,13 @@ do_mlist(int *ip)
  */
 
 void
-do_nolist(int *ip)
+do_nolist(int *ip, struct opts *op)
 {
 	/* check end of line */
 	if (!check_eol(ip))
 		return;
 
-	asm_opt[OPT_LIST] = 0;
+	op->asm_opt[OPT_LIST] = 0;
 }
 
 
@@ -145,13 +145,13 @@ do_nolist(int *ip)
  */
 
 void
-do_nomlist(int *ip)
+do_nomlist(int *ip, struct opts *op)
 {
 	/* check end of line */
 	if (!check_eol(ip))
 		return;
 
-	asm_opt[OPT_MACRO] = mlist_opt;
+	op->asm_opt[OPT_MACRO] = op->mlist_opt;
 }
 
 
@@ -1083,7 +1083,7 @@ do_incchr(int *ip)
  */
 
 void
-do_opt(int *ip)
+do_opt(int *ip, struct opts *op)
 {
 	char c;
 	char flag;
@@ -1143,9 +1143,9 @@ do_opt(int *ip)
 
 		/* set option */
 		if (flag == '+')
-			asm_opt[opt] = 1;
+			op->asm_opt[opt] = 1;
 		if (flag == '-')
-			asm_opt[opt] = 0;
+			op->asm_opt[opt] = 0;
 	}
 
 	/* output */

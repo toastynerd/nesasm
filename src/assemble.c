@@ -21,7 +21,7 @@ int continued_line;	/* set when a line is the continuation of another line */
  * translate source line to machine language
  */
 void
-assemble(void)
+assemble(struct opts *op)
 {
 	struct t_line *ptr;
 	char *buf;
@@ -173,7 +173,7 @@ assemble(void)
 
 		/* output location counter */
 		if (pass == LAST_PASS) {
-			if (!asm_opt[OPT_MACRO])
+			if (!op->asm_opt[OPT_MACRO])
 				loadlc((page << 13) + loccnt, 0);
 		}
 

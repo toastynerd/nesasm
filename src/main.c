@@ -41,17 +41,8 @@ FILE  *in_fp;	/* file pointers, input */
 FILE  *lst_fp;	/* listing */
 char  section_name[4][8] = { "  ZP", " BSS", "CODE", "DATA" };
 int   dump_seg;
-int   develo_opt;
-int   header_opt;
-int   srec_opt;
-int   run_opt;
-int   scd_opt;
-int   cd_opt;
-int   mx_opt;
-int   mlist_opt;	/* macro listing main flag */
 int   xlist;		/* listing file main flag */
 int   list_level;	/* output level */
-int   asm_opt[8];	/* assembler options */
 
 
 /* ----
@@ -70,6 +61,7 @@ main(int argc, char **argv)
 	int file;
 	int ram_bank;
 	struct fnames fn;
+	struct opts op;
 
 	/* get program name */
 	if ((prg_name = strrchr(argv[0], '/')) != NULL)
@@ -93,14 +85,14 @@ main(int argc, char **argv)
 
 	/* init assembler options */
 	list_level = 2;
-	header_opt = 1;
-	develo_opt = 0;
-	mlist_opt = 0;
-	srec_opt = 0;
-	run_opt = 0;
-	scd_opt = 0;
-	cd_opt = 0;
-	mx_opt = 0;
+	op.header_opt = 1;
+	op.develo_opt = 0;
+	op.mlist_opt = 0;
+	op.srec_opt = 0;
+	op.run_opt = 0;
+	op.scd_opt = 0;
+	op.cd_opt = 0;
+	op.mx_opt = 0;
 	file = 0;
 
 	/* display assembler version message */
@@ -118,15 +110,15 @@ main(int argc, char **argv)
 
 				/* forces macros expansion */
 				else if (!strcmp(argv[i], "-m"))
-					mlist_opt = 1;
+					op.mlist_opt = 1;
 
 				/* no header */
 				else if (!strcmp(argv[i], "-raw"))
-					header_opt = 0;
+					op.header_opt = 0;
 
 				/* output s-record file */
 				else if (!strcmp(argv[i], "-srec"))
-					srec_opt = 1;
+					op.srec_opt = 1;
 
 				/* output level */
 				else if (!strncmp(argv[i], "-l", 2)) {
@@ -152,25 +144,25 @@ main(int argc, char **argv)
 					if (machine->type == MACHINE_PCE) {
 						/* cd-rom */
 						if (!strcmp(argv[i], "-cd")) {
-							cd_opt  = STANDARD_CD;
-							scd_opt = 0;
+							op.cd_opt  = STANDARD_CD;
+							op.scd_opt = 0;
 						}
 
 						/* super cd-rom */
 						else if (!strcmp(argv[i], "-scd")) {
-							scd_opt = SUPER_CD;
-							cd_opt  = 0;
+							op.scd_opt = SUPER_CD;
+							op.cd_opt  = 0;
 						}
 
 						/* develo auto-run */
 						else if (!strcmp(argv[i], "-develo"))
-							develo_opt = 1;
+							op.develo_opt = 1;
 						else if (!strcmp(argv[i], "-dev"))
-							develo_opt = 1;
+							op.develo_opt = 1;
 		
 						/* output mx file */
 						else if (!strcmp(argv[i], "-mx"))
-							mx_opt = 1;
+							op.mx_opt = 1;
 				 	}
 				}
 			}
@@ -198,7 +190,7 @@ main(int argc, char **argv)
 	strcpy(fn.bin_fname, fn.in_fname);
 	strcpy(fn.lst_fname, fn.in_fname);
 	strcpy(fn.fns_fname, fn.in_fname);
-	strcat(fn.bin_fname, (cd_opt || scd_opt) ? ".bin" : machine->rom_ext);
+	strcat(fn.bin_fname, (op.cd_opt || op.scd_opt) ? ".bin" : machine->rom_ext);
 	strcat(fn.lst_fname, ".lst");
 	strcat(fn.fns_fname, ".fns");
         
@@ -242,8 +234,8 @@ main(int argc, char **argv)
 
 	/* predefined symbols */
 	lablset("MAGICKIT", 1);
-	lablset("DEVELO", develo_opt | mx_opt);
-	lablset("CDROM", cd_opt | scd_opt);
+	lablset("DEVELO", op.develo_opt | op.mx_opt);
+	lablset("CDROM", op.cd_opt | op.scd_opt);
 	lablset("_bss_end", 0);
 	lablset("_bank_base", 0);
 	lablset("_nb_bank", 1);
@@ -258,15 +250,15 @@ main(int argc, char **argv)
 	bank_base = 0;
 	errcnt = 0;
 
-	if (cd_opt) {
+	if (op.cd_opt) {
 		rom_limit  = 0x10000;	/* 64KB */
 		bank_limit = 0x07;
 	}
-	else if (scd_opt) {
+	else if (op.scd_opt) {
 		rom_limit  = 0x40000;	/* 256KB */
 		bank_limit = 0x1F;
 	}
-	else if (develo_opt || mx_opt) {
+	else if (op.develo_opt || op.mx_opt) {
 		rom_limit  = 0x30000;	/* 192KB */
 		bank_limit = 0x17;
 	}
@@ -287,10 +279,10 @@ main(int argc, char **argv)
 		proc_nb = 0;
 
 		/* reset assembler options */
-		asm_opt[OPT_LIST] = 0;
-		asm_opt[OPT_MACRO] = mlist_opt;
-		asm_opt[OPT_WARNING] = 0;
-		asm_opt[OPT_OPTIMIZE] = 0;
+		op.asm_opt[OPT_LIST] = 0;
+		op.asm_opt[OPT_MACRO] = op.mlist_opt;
+		op.asm_opt[OPT_WARNING] = 0;
+		op.asm_opt[OPT_OPTIMIZE] = 0;
 
 		/* reset bank arrays */
 		for (i = 0; i < 4; i++) {
@@ -330,7 +322,7 @@ main(int argc, char **argv)
 
 		/* assemble */
 		while (readline() != -1) {
-			assemble();
+			assemble(&op);
 			if (loccnt > 0x2000) {
 				if (proc_ptr == NULL)
 					fatal_error("Bank overflow, offset > $1FFF!");
@@ -358,7 +350,7 @@ main(int argc, char **argv)
 
 		/* adjust bank base */
 		if (pass == FIRST_PASS)
-			bank_base = calc_bank_base();
+			bank_base = calc_bank_base(&op);
 
 		/* update predefined symbols */
 		if (pass == FIRST_PASS) {
@@ -369,7 +361,7 @@ main(int argc, char **argv)
 
 		/* adjust the symbol table for the develo or for cd-roms */
 		if (pass == FIRST_PASS) {
-			if (develo_opt || mx_opt || cd_opt || scd_opt)
+			if (op.develo_opt || op.mx_opt || op.cd_opt || op.scd_opt)
 				lablremap();
 		}
 
@@ -391,7 +383,7 @@ main(int argc, char **argv)
 	/* rom */
 	if (errcnt == 0) {
 		/* cd-rom */
-		if (cd_opt || scd_opt) {
+		if (op.cd_opt || op.scd_opt) {
 			/* open output file */
 			if ((fp = fopen(fn.bin_fname, "wb")) == NULL) {
 				printf("Can not open output file '%s'!\n", fn.bin_fname);
@@ -399,7 +391,7 @@ main(int argc, char **argv)
 			}
 		
 			/* boot code */
-			if (header_opt) {
+			if (op.header_opt) {
 				/* open ipl binary file */
 				if ((ipl = open_file("boot.bin", "rb")) == NULL) {
 					printf("Can not find CD boot file 'boot.bin'!\n");
@@ -440,7 +432,7 @@ main(int argc, char **argv)
 		}
 
 		/* develo box */
-		else if (develo_opt || mx_opt) {
+		else if (op.develo_opt || op.mx_opt) {
 			page = (map[0][0] >> 5);
 
 			/* save mx file */
@@ -452,7 +444,7 @@ main(int argc, char **argv)
 				write_srec(fn.out_fname, "mx", 0xD0000);
 
 			/* execute */
-			if (develo_opt) {
+			if (op.develo_opt) {
 				sprintf(cmd, "perun %s", fn.out_fname);
 				system(cmd);
 			}
@@ -461,7 +453,7 @@ main(int argc, char **argv)
 		/* save */
 		else {
 			/* s-record file */
-			if (srec_opt)
+			if (op.srec_opt)
 				write_srec(fn.out_fname, "s28", 0);
 
 			/* binary file */
@@ -473,7 +465,7 @@ main(int argc, char **argv)
 				}
 		
 				/* write header */
-				if (header_opt)
+				if (op.header_opt)
 					machine->write_header(fp, max_bank + 1);
 		
 				/* write rom */
@@ -509,20 +501,20 @@ main(int argc, char **argv)
  */
 
 int
-calc_bank_base(void)
+calc_bank_base(struct opts *op)
 {
 	int base;
 
 	/* cd */
-	if (cd_opt)
+	if (op->cd_opt)
 		base = 0x80;
 	
 	/* super cd */
-	else if (scd_opt)
+	else if (op->scd_opt)
 		base = 0x68;
 
 	/* develo */
-	else if (develo_opt || mx_opt) {
+	else if (op->develo_opt || op->mx_opt) {
 		if (max_bank < 4)
 			base = 0x84;
 		else

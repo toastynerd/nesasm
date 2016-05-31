@@ -246,3 +246,15 @@ struct fnames {
 
 	char fns_fname[FNAME_SIZE]; /* functions */
 };
+
+struct opts {
+	int develo_opt;
+	int header_opt;
+	int srec_opt;
+	int run_opt;
+	int scd_opt;
+	int cd_opt;
+	int mx_opt;
+	int mlist_opt; /* macro listing main flag */
+	int asm_opt[8]; /* assembler options */
+};

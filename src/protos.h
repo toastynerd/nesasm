@@ -1,6 +1,6 @@
 
 /* ASSEMBLE.C */
-void assemble(void);
+void assemble(struct opts *op);
 int  oplook(int *idx);
 void addinst(struct t_opcode *optbl);
 int  check_eol(int *ip);
@@ -24,11 +24,11 @@ int  getoperand(int *ip, int flag, int last_char);
 int  getstring(int *ip, char *buffer, int size);
 
 /* COMMAND.C */
-void do_pseudo(int *ip);
-void do_list(int *ip);
-void do_mlist(int *ip);
-void do_nolist(int *ip);
-void do_nomlist(int *ip);
+void do_pseudo(int *ip, struct opts *op);
+void do_list(int *ip, struct opts *op);
+void do_mlist(int *ip, struct opts *op);
+void do_nolist(int *ip, struct opts *op);
+void do_nomlist(int *ip, struct opts *op);
 void do_db(int *ip);
 void do_dw(int *ip);
 void do_equ(int *ip);
@@ -44,7 +44,7 @@ void do_ds(int *ip);
 void do_fail(int *ip);
 void do_section(int *ip);
 void do_incchr(int *ip);
-void do_opt(int *ip);
+void do_opt(int *ip, struct opts *op);
 int  htoi(char *str, int nb);
 
 /* CRC.C */
@@ -84,7 +84,7 @@ int  macro_getargtype(char *arg);
 
 /* MAIN.C */
 int  main(int argc, char **argv);
-int  calc_bank_base(void);
+int  calc_bank_base(struct opts *op);
 void help(char *);
 void show_seg_usage(void);
 
@@ -92,7 +92,7 @@ void show_seg_usage(void);
 int pce_load_map(char *fname, int mode);
 
 /* OUTPUT.C */
-void println(void);
+void println();
 void clearln(void);
 void loadlc(int offset, int f);
 void hexcon(int digit, int num);

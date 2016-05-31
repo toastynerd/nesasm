@@ -12,7 +12,7 @@
  */
 
 void
-println(void)
+println()
 {
 	int nb, cnt;
 	int i;
@@ -20,8 +20,10 @@ println(void)
 	/* check if output possible */
 	if (list_level == 0)
 		return;
-	if (!xlist || !asm_opt[OPT_LIST] || (expand_macro && !asm_opt[OPT_MACRO]))
-		return;
+
+	// TODO(toasty) figure out how to get this options check in here
+	/* if (!xlist || !op->asm_opt[OPT_LIST] || (expand_macro && !op->asm_opt[OPT_MACRO]))
+		return; */
 
 	/* update line buffer if necessary */
 	if (continued_line)
