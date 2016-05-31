@@ -1,3 +1,11 @@
+/* data structure sizes */
+#ifndef BUF_SIZE
+#define BUF_SIZE 4096
+#endif
+
+#ifndef FNAME_SIZE
+#define FNAME_SIZE 128
+#endif
 
 /* path separator */
 #if defined(DJGPP) || defined(MSDOS) || defined(WIN32)
@@ -230,11 +238,11 @@ typedef struct t_machine {
     void (*write_header)(FILE *, int);
 } MACHINE;
 
-/* data structure sizes */
-#ifndef BUF_SIZE
-#define BUF_SIZE 4096
-#endif
+struct fnames {
+	char in_fname[FNAME_SIZE]; /* file names, input */
+	char out_fname[FNAME_SIZE]; /* output */
+	char bin_fname[FNAME_SIZE]; /* binary */
+	char lst_fname[FNAME_SIZE]; /* listing */
 
-#ifndef FNAME_SIZE
-#define FNAME_SIZE 128
-#endif
+	char fns_fname[FNAME_SIZE]; /* functions */
+};

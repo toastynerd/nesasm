@@ -37,11 +37,6 @@
 
 /* variables */
 unsigned char ipl_buffer[BUF_SIZE];
-char  in_fname[FNAME_SIZE];	/* file names, input */
-char  out_fname[FNAME_SIZE];	/* output */
-char  bin_fname[FNAME_SIZE];	/* binary */
-char  lst_fname[FNAME_SIZE];	/* listing */
-char  fns_fname[FNAME_SIZE];	/* functions */
 char  *prg_name;	/* program name */
 FILE  *in_fp;	/* file pointers, input */
 FILE  *lst_fp;	/* listing */
@@ -74,6 +69,7 @@ main(int argc, char **argv)
 	int i, j;
 	int file;
 	int ram_bank;
+	struct fnames fn;
 
 	/* get program name */
 	if ((prg_name = strrchr(argv[0], '/')) != NULL)
@@ -179,7 +175,7 @@ main(int argc, char **argv)
 				}
 			}
 			else {
-				strcpy(in_fname, argv[i]);
+				strcpy(fn.in_fname, argv[i]);
 				file++;
 			}
 		}
@@ -190,7 +186,7 @@ main(int argc, char **argv)
 	}
 
 	/* search file extension */
-	if ((p = strrchr(in_fname, '.')) != NULL) {
+	if ((p = strrchr(fn.in_fname, '.')) != NULL) {
 		if (!strchr(p, PATH_SEPARATOR))
 		   *p = '\0';
 		else
@@ -198,19 +194,19 @@ main(int argc, char **argv)
 	}
 
 	/* auto-add file extensions */
-	strcpy(out_fname, in_fname);
-	strcpy(bin_fname, in_fname);
-	strcpy(lst_fname, in_fname);
-	strcpy(fns_fname, in_fname);
-	strcat(bin_fname, (cd_opt || scd_opt) ? ".bin" : machine->rom_ext);
-	strcat(lst_fname, ".lst");
-	strcat(fns_fname, ".fns");
+	strcpy(fn.out_fname, fn.in_fname);
+	strcpy(fn.bin_fname, fn.in_fname);
+	strcpy(fn.lst_fname, fn.in_fname);
+	strcpy(fn.fns_fname, fn.in_fname);
+	strcat(fn.bin_fname, (cd_opt || scd_opt) ? ".bin" : machine->rom_ext);
+	strcat(fn.lst_fname, ".lst");
+	strcat(fn.fns_fname, ".fns");
         
 
 	if (p)
 	   *p = '.';
 	else
-		strcat(in_fname, ".asm");
+		strcat(fn.in_fname, ".asm");
 
 	/* init include path */
 	init_path();
@@ -219,8 +215,8 @@ main(int argc, char **argv)
 	crc_init();
 
 	/* open the input file */
-	if (open_input(in_fname)) {
-		printf("Can not open input file '%s'!\n", in_fname);
+	if (open_input(fn.in_fname)) {
+		printf("Can not open input file '%s'!\n", fn.in_fname);
 		exit(1);
 	}
 
@@ -383,8 +379,8 @@ main(int argc, char **argv)
 		/* open the listing file */
 		if (pass == FIRST_PASS) {
 			if (xlist && list_level) {
-				if ((lst_fp = fopen(lst_fname, "w")) == NULL) {
-					printf("Can not open listing file '%s'!\n", lst_fname);
+				if ((lst_fp = fopen(fn.lst_fname, "w")) == NULL) {
+					printf("Can not open listing file '%s'!\n", fn.lst_fname);
 					exit(1);
 				}
 				fprintf(lst_fp, "#[1]   %s\n", input_file[1].name);
@@ -397,8 +393,8 @@ main(int argc, char **argv)
 		/* cd-rom */
 		if (cd_opt || scd_opt) {
 			/* open output file */
-			if ((fp = fopen(bin_fname, "wb")) == NULL) {
-				printf("Can not open output file '%s'!\n", bin_fname);
+			if ((fp = fopen(fn.bin_fname, "wb")) == NULL) {
+				printf("Can not open output file '%s'!\n", fn.bin_fname);
 				exit(1);
 			}
 		
@@ -450,14 +446,14 @@ main(int argc, char **argv)
 			/* save mx file */
 			if ((page + max_bank) < 7)
 				/* old format */
-				write_srec(out_fname, "mx", page << 13);
+				write_srec(fn.out_fname, "mx", page << 13);
 			else
 				/* new format */
-				write_srec(out_fname, "mx", 0xD0000);
+				write_srec(fn.out_fname, "mx", 0xD0000);
 
 			/* execute */
 			if (develo_opt) {
-				sprintf(cmd, "perun %s", out_fname);
+				sprintf(cmd, "perun %s", fn.out_fname);
 				system(cmd);
 			}
 		}
@@ -466,13 +462,13 @@ main(int argc, char **argv)
 		else {
 			/* s-record file */
 			if (srec_opt)
-				write_srec(out_fname, "s28", 0);
+				write_srec(fn.out_fname, "s28", 0);
 
 			/* binary file */
 			else {
 				/* open file */
-				if ((fp = fopen(bin_fname, "wb")) == NULL) {
-					printf("Can not open binary file '%s'!\n", bin_fname);
+				if ((fp = fopen(fn.bin_fname, "wb")) == NULL) {
+					printf("Can not open binary file '%s'!\n", fn.bin_fname);
 					exit(1);
 				}
 		
@@ -499,7 +495,7 @@ main(int argc, char **argv)
 		show_seg_usage();
 
 	/* GrP dump function addresses */
-	funcdump(fns_fname, in_fname);
+	funcdump(fn.fns_fname, fn.in_fname);
 
 	/* ok */
 	return(0);
