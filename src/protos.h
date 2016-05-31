@@ -85,7 +85,7 @@ int  macro_getargtype(char *arg);
 /* MAIN.C */
 int  main(int argc, char **argv);
 int  calc_bank_base(void);
-void help(void);
+void help(char *);
 void show_seg_usage(void);
 
 /* MAP.C */

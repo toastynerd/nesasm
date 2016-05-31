@@ -37,7 +37,6 @@
 
 /* variables */
 unsigned char ipl_buffer[BUF_SIZE];
-char  *prg_name;	/* program name */
 FILE  *in_fp;	/* file pointers, input */
 FILE  *lst_fp;	/* listing */
 char  section_name[4][8] = { "  ZP", " BSS", "CODE", "DATA" };
@@ -65,6 +64,7 @@ main(int argc, char **argv)
 {
 	FILE *fp, *ipl;
 	char *p;
+	char  *prg_name;	/* program name */
 	char  cmd[80];
 	int i, j;
 	int file;
@@ -143,7 +143,7 @@ main(int argc, char **argv)
 
 				/* help */
 				else if (!strcmp(argv[i], "-?")) {
-					help();
+					help(prg_name);
 					return (0);
 				}
 
@@ -181,7 +181,7 @@ main(int argc, char **argv)
 		}
 	}
 	if (!file) {
-		help();
+		help(prg_name);
 		return (0);
 	}
 
@@ -544,8 +544,8 @@ calc_bank_base(void)
  * show assembler usage
  */
 
-void
-help(void)
+void 
+help(char *prg_name)
 {
 	/* check program name */
 	if (strlen(prg_name) == 0)
