@@ -86,7 +86,8 @@ int  macro_getargtype(char *arg);
 int  main(int argc, char **argv);
 int  calc_bank_base(struct opts *op);
 void help(char *);
-void show_seg_usage(void);
+void show_seg_usage(struct opts *op);
+int  parse_args(int argc, char** argv, struct opts *op, struct fnames *fn);
 
 /* MAP.C */
 int pce_load_map(char *fname, int mode);

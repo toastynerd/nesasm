@@ -245,6 +245,7 @@ struct fnames {
 	char lst_fname[FNAME_SIZE]; /* listing */
 
 	char fns_fname[FNAME_SIZE]; /* functions */
+	int file_num;
 };
 
 struct opts {
@@ -257,4 +258,6 @@ struct opts {
 	int mx_opt;
 	int mlist_opt; /* macro listing main flag */
 	int asm_opt[8]; /* assembler options */
+	int dump_seg; //parsed from command line
+	int list_level;
 };

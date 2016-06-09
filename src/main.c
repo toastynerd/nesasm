@@ -40,9 +40,7 @@ unsigned char ipl_buffer[BUF_SIZE];
 FILE  *in_fp;	/* file pointers, input */
 FILE  *lst_fp;	/* listing */
 char  section_name[4][8] = { "  ZP", " BSS", "CODE", "DATA" };
-int   dump_seg;
 int   xlist;		/* listing file main flag */
-int   list_level;	/* output level */
 
 
 /* ----
@@ -84,7 +82,7 @@ main(int argc, char **argv)
 		machine = &nes;
 
 	/* init assembler options */
-	list_level = 2;
+	op.list_level = 2;
 	op.header_opt = 1;
 	op.develo_opt = 0;
 	op.mlist_opt = 0;
@@ -93,88 +91,15 @@ main(int argc, char **argv)
 	op.scd_opt = 0;
 	op.cd_opt = 0;
 	op.mx_opt = 0;
-	file = 0;
+	fn.file_num = 0;
 
 	/* display assembler version message */
     printf("%s\n\n", machine->asm_title);
 
 	/* parse command line */
-	if (argc > 1) {
-		for (i = 1; i < argc; i++) {
-			if (argv[i][0] == '-') {
-				/* segment usage */
-				if (!strcmp(argv[i], "-s"))
-					dump_seg = 1;
-				else if (!strcmp(argv[i], "-S"))
-					dump_seg = 2;
-
-				/* forces macros expansion */
-				else if (!strcmp(argv[i], "-m"))
-					op.mlist_opt = 1;
-
-				/* no header */
-				else if (!strcmp(argv[i], "-raw"))
-					op.header_opt = 0;
-
-				/* output s-record file */
-				else if (!strcmp(argv[i], "-srec"))
-					op.srec_opt = 1;
-
-				/* output level */
-				else if (!strncmp(argv[i], "-l", 2)) {
-					/* get level */
-					if (strlen(argv[i]) == 2)
-						list_level = atol(argv[++i]);
-					else
-						list_level = atol(&argv[i][2]);
-
-					/* check range */
-					if (list_level < 0 || list_level > 3)
-						list_level = 2;
-				}
-
-				/* help */
-				else if (!strcmp(argv[i], "-?")) {
-					help(prg_name);
-					return (0);
-				}
-
-				else {
-					/* PCE specific functions */
-					if (machine->type == MACHINE_PCE) {
-						/* cd-rom */
-						if (!strcmp(argv[i], "-cd")) {
-							op.cd_opt  = STANDARD_CD;
-							op.scd_opt = 0;
-						}
-
-						/* super cd-rom */
-						else if (!strcmp(argv[i], "-scd")) {
-							op.scd_opt = SUPER_CD;
-							op.cd_opt  = 0;
-						}
-
-						/* develo auto-run */
-						else if (!strcmp(argv[i], "-develo"))
-							op.develo_opt = 1;
-						else if (!strcmp(argv[i], "-dev"))
-							op.develo_opt = 1;
-		
-						/* output mx file */
-						else if (!strcmp(argv[i], "-mx"))
-							op.mx_opt = 1;
-				 	}
-				}
-			}
-			else {
-				strcpy(fn.in_fname, argv[i]);
-				file++;
-			}
-		}
-	}
-	if (!file) {
-		help(prg_name);
-		return (0);
+	if (parse_args(argc, argv, &op, &fn) == 1 || fn.file_num == 0) {
+		help("prog");
+		return 0;
 	}
 
 	/* search file extension */
@@ -370,7 +295,7 @@ main(int argc, char **argv)
 
 		/* open the listing file */
 		if (pass == FIRST_PASS) {
-			if (xlist && list_level) {
+			if (xlist && op.list_level) {
 				if ((lst_fp = fopen(fn.lst_fname, "w")) == NULL) {
 					printf("Can not open listing file '%s'!\n", fn.lst_fname);
 					exit(1);
@@ -476,15 +401,15 @@ main(int argc, char **argv)
 	}
 
 	/* close listing file */
-	if (xlist && list_level)
+	if (xlist && op.list_level)
 		fclose(lst_fp);
 
 	/* close input file */
 	fclose(in_fp);
 
 	/* dump the bank table */
-	if (dump_seg)
-		show_seg_usage();
+	if (op.dump_seg)
+		show_seg_usage(&op);
 
 	/* GrP dump function addresses */
 	funcdump(fn.fns_fname, fn.in_fname);
@@ -566,7 +491,7 @@ help(char *prg_name)
  */
 
 void
-show_seg_usage(void)
+show_seg_usage(struct opts *op)
 {
 	int i, j;
 	int addr, start, stop, nb;
@@ -627,7 +552,7 @@ show_seg_usage(void)
 		rom_free += 8192 - nb;
 
 		/* scan */
-		if (dump_seg == 1)
+		if (op->dump_seg == 1)
 			continue;
 
 		for (;;) {
@@ -664,5 +589,35 @@ show_seg_usage(void)
 	rom_free = (rom_free + 511) >> 10;
 	printf("\t\t\t\t    ---- ----\n");
 	printf("\t\t\t\t    %4iK%4iK\n", rom_used, rom_free);
+}
+
+/* Parse command line arguments return 1 to call the help funciton and exit*/
+int parse_args(int argc, char **argv, struct opts *op, struct fnames *fn)
+{
+	int i, j;
+	char temp[10];
+	for (i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "-s") == 0)
+			op->dump_seg = 1;
+		else if (strcmp(argv[i], "-S") == 0)
+			op->dump_seg = 1;
+		else if (strcmp(argv[i], "-m") == 0)
+			op->mlist_opt = 1;
+		else if (strcmp(argv[i], "-raw") == 0)
+			op->header_opt = 0;
+		else if (strcmp(argv[i], "-srec") == 0)
+			op->srec_opt = 1;
+		else if(strcmp(argv[i], "-l") == 0) 
+			op->list_level = atol(argv[++i]);
+		else if(strcmp(argv[i], "-?") == 0) {
+			help("progname");
+			return 1;
+		} else {
+			strcpy(fn->in_fname, argv[i]);
+			fn->file_num++;
+		}
+	}
+
+	return 0;
 }
 
