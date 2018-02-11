@@ -1,5 +1,12 @@
 SRC_DIR = src
-PREFIX ?= /usr/bin
+uname_s := $(shell uname -s) 
+ ifeq ($(uname_s), Linux)
+	PREFIX ?= /usr/bin
+endif
+ ifeq ($(uname_s), Darwin)
+  	PREFIX ?= /usr/local/bin
+endif
+
 
 .PHONY: nesasm clean install
 
